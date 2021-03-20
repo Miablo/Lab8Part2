@@ -112,18 +112,19 @@ public class GUI extends JFrame implements ActionListener, ItemListener {
     // if button is pressed
     public void actionPerformed(ActionEvent e)
     {
-        //l.setText(e.getActionCommand() + " selected.");
+        //console.setText(e.getActionCommand() + " selected.");
     }
 
     // if combo box is selected
     public void itemStateChanged(ItemEvent e)
     {
-      //  l1.setText(x.getSelectedItem() + " selected.");
+      // console.setText(x.getSelectedItem() + " selected.");
     }
 
     private void buildClassStr(ActionEvent e) {
         try {
-            Class c = Class.forName(this.testClass.getText());
+            System.out.println(testClass.getText());
+            Class c = Class.forName(testClass.getText());
             this.cons = c.getConstructors();
             String[] str = new String[this.cons.length];
 
