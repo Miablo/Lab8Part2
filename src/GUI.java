@@ -137,7 +137,6 @@ public class GUI extends JFrame implements ActionListener {
             int m = o.getClass().getModifiers();
             try {
                 testClass.setText(arg);
-               // System.out.println(testClass.getText());
                 Class c = Class.forName(testClass.getText());
                 this.cons = c.getConstructors();
                 String[] str = new String[this.cons.length];
@@ -197,9 +196,7 @@ public class GUI extends JFrame implements ActionListener {
 
    public Object[] makeObj(Class[] c) throws ClassNotFoundException, NoSuchMethodException,
            IllegalAccessException, InvocationTargetException, InstantiationException {
-        System.out.println("This is in the make object method");
        Object[] object = new Object[c.length];
-
        return object;
    }
 
@@ -238,7 +235,6 @@ public class GUI extends JFrame implements ActionListener {
         // use all input values
         int idx = this.methodList.getSelectedIndex();
         Class[] cls = this.mtd[idx].getParameterTypes();
-        System.out.println("This is in the runMethod");
         Object[] obj = this.makeObj(cls);
 
         Object result = this.mtd[idx].invoke(this.createObj, obj);
