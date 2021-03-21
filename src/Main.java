@@ -18,10 +18,11 @@ public class Main {
      */
     public static void main(String[] args) throws Exception {
         GUI gui = new GUI();
-        gui.createWindow();
+        gui.createWindow(args);
         gui.setVisible(true);
 
-        try {
+
+       /* try {
             // Loop through arguments passed through CLI
             for (String arg : args) {
                 Object c = Class.forName(arg).getConstructor().newInstance();
@@ -32,12 +33,11 @@ public class Main {
                 ClassComponents.getConstructor(c);
                 ClassComponents.getMethodFields(c);
 
-                System.out.println( "} ");
             }
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
                 | InstantiationException | InvocationTargetException e) {
             e.printStackTrace();
-        }
+        }*/
 
     }
 

@@ -3,12 +3,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 
-public class GUI extends JFrame implements ActionListener, ItemListener {
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+
+public class GUI extends JFrame implements ActionListener {
     JPanel window; // main window
     // scroll view areas for method,construct,and console
     JSplitPane methodPane = new JSplitPane();
@@ -45,18 +46,17 @@ public class GUI extends JFrame implements ActionListener, ItemListener {
     // Bottom area console output area
     JTextArea console = new JTextArea();
 
-    public void createWindow() throws Exception {
+    public void createWindow(String[] args) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         // Begin main window //
         this.window = (JPanel)this.getContentPane();
         this.window.setLayout(this.borderLayout1);
         this.setSize(new Dimension(508, 513));
         this.setTitle("FUNCTIONAL TESTING TOOL");
         // Begin select class tool bar //
-        this.testClass.addActionListener(this::buildClassStr);
         this.testClass.setPreferredSize(new Dimension(201, 31));
-        this.testClass.setText(" test.class");
-        this.header.add(this.classLabel, null);
-        this.header.add(this.testClass, null);
+
+        this.header.add(this.classLabel, (Object)null);
+        this.header.add(this.testClass, (Object)null);
         this.classLabel.setText("  Tested Class: ");
         // Constructor left window view //
         this.leftPanel.setLayout(this.borderLayout3);
@@ -65,35 +65,40 @@ public class GUI extends JFrame implements ActionListener, ItemListener {
         this.leftPanel.add(this.constructView, "Center");
         this.leftPanel.add(this.constructToolbar, "North");
         // Button and Label
-        this.objectBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        this.objectBtn.addActionListener(e -> {
+            try {
                 makeObject(e);
+            } catch (ClassNotFoundException | NoSuchMethodException |
+                    InvocationTargetException | InstantiationException |
+                    IllegalAccessException classNotFoundException) {
+                classNotFoundException.printStackTrace();
             }
         });
         this.objectBtn.setText("New Object");
         this.construct.setText("Constructors");
-        this.constructToolbar.add(this.construct, null);
-        this.constructToolbar.add(this.objectBtn, null);
-        this.constructView.getViewport().add(this.constructList, null);
+        this.constructToolbar.add(this.construct, (Object)null);
+        this.constructToolbar.add(this.objectBtn, (Object)null);
+        this.constructView.getViewport().add(this.constructList, (Object)null);
         // Right Method run view //
         this.methodView.setPreferredSize(new Dimension(258, 150));
-        this.methodView.getViewport().add(this.methodList, null);
+        this.methodView.getViewport().add(this.methodList, (Object)null);
         this.rightPanel.setLayout(this.borderLayout2);
         this.rightPanel.add(this.methodView, "Center");
         this.rightPanel.add(this.methodToolbar, "North");
         // Method Button and label
         this.mtdLabel.setRequestFocusEnabled(true);
         this.mtdLabel.setText("Methods");
-        this.runBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        this.runBtn.addActionListener(e -> {
+            try {
                 runMethod(e);
+            } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
+                    InstantiationException | IllegalAccessException classNotFoundException) {
+                classNotFoundException.printStackTrace();
             }
         });
         this.runBtn.setText("Run");
-        this.methodToolbar.add(this.mtdLabel, null);
-        this.methodToolbar.add(this.runBtn, null);
+        this.methodToolbar.add(this.mtdLabel, (Object)null);
+        this.methodToolbar.add(this.runBtn, (Object)null);
         this.methodPane.add(this.leftPanel, "left");
         this.methodPane.add(this.rightPanel, "right");
         // add views to window //
@@ -107,51 +112,47 @@ public class GUI extends JFrame implements ActionListener, ItemListener {
         this.consoleView.getViewport().add(this.console);
         // allow x click to exit
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        buildClassStr(args);
     }
+    private void buildClassStr(String[] args) throws ClassNotFoundException,
+            NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        for (String arg : args) {
+            Object o = Class.forName(arg).getConstructor().newInstance();
+            int m = o.getClass().getModifiers();
+            try {
+                testClass.setText(arg);
+                System.out.println(testClass.getText());
+                Class c = Class.forName(testClass.getText());
+                this.cons = c.getConstructors();
+                String[] str = new String[this.cons.length];
 
-    // if button is pressed
-    public void actionPerformed(ActionEvent e)
-    {
-        //console.setText(e.getActionCommand() + " selected.");
-    }
+                int i;
+                Class[] cls;
+                for(i = 0; i < this.cons.length; ++i) {
+                    cls = this.cons[i].getParameterTypes();
+                    str[i] = this.cons[i].getName() + "(";
 
-    // if combo box is selected
-    public void itemStateChanged(ItemEvent e)
-    {
-      // console.setText(x.getSelectedItem() + " selected.");
-    }
+                    getClassStr(str, i, cls);
+                }
 
-    private void buildClassStr(ActionEvent e) {
-        try {
-            System.out.println(testClass.getText());
-            Class c = Class.forName(testClass.getText());
-            this.cons = c.getConstructors();
-            String[] str = new String[this.cons.length];
+                this.methodList.setListData(str);
+                this.mtd = c.getDeclaredMethods();
+                str = new String[this.mtd.length];
 
-            int i;
-            Class[] cls;
-            for(i = 0; i < this.cons.length; ++i) {
-                cls = this.cons[i].getParameterTypes();
-                str[i] = this.cons[i].getName() + "(";
+                for(i = 0; i < this.mtd.length; ++i) {
+                    cls = this.mtd[i].getParameterTypes();
+                    str[i] = this.mtd[i].getReturnType().getName() + " " + this.mtd[i].getName() + "(";
 
-                getClassStr(str, i, cls);
+                    getClassStr(str, i, cls);
+                }
+
+                this.constructList.setListData(str);
+            } catch (Exception ex) {
+                System.out.println(ex);
             }
 
-            this.methodList.setListData(str);
-            this.mtd = c.getDeclaredMethods();
-            str = new String[this.mtd.length];
-
-            for(i = 0; i < this.mtd.length; ++i) {
-                cls = this.mtd[i].getParameterTypes();
-                str[i] = this.mtd[i].getReturnType().getName() + " " + this.mtd[i].getName() + "(";
-
-                getClassStr(str, i, cls);
-            }
-
-            this.constructList.setListData(str);
-        } catch (Exception ex) {
-            System.out.println(e);
         }
+
 
     }
 
@@ -168,17 +169,19 @@ public class GUI extends JFrame implements ActionListener, ItemListener {
         str[i] = str[i] + ")";
     }
 
-   public Object[] makeObject(Class[] c) {
+   public Object[] makeObj(Class[] c) throws ClassNotFoundException, NoSuchMethodException,
+           IllegalAccessException, InvocationTargetException, InstantiationException {
 
        Object[] obj = new Object[c.length];
 
        return obj;
    }
 
-    void makeObject(ActionEvent e) {
+    void makeObject(ActionEvent e) throws ClassNotFoundException,
+            NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         int idx = this.constructList.getSelectedIndex();
         Class[] c = this.cons[idx].getParameterTypes();
-        Object[] obj = this.makeObject(c);
+        Object[] obj = this.makeObj(c);
 
         try {
             this.obj_exe = this.cons[idx].newInstance(obj);
@@ -188,12 +191,20 @@ public class GUI extends JFrame implements ActionListener, ItemListener {
 
     }
 
-    void runMethod(ActionEvent e) {
+    void runMethod(ActionEvent e) throws ClassNotFoundException, NoSuchMethodException,
+            InvocationTargetException, InstantiationException, IllegalAccessException {
         int idx = this.methodList.getSelectedIndex();
         Class[] cls = this.mtd[idx].getParameterTypes();
-        Object[] obj = this.makeObject(cls);
+        Object[] obj = this.makeObj(cls);
 
+        Object o = Class.forName(Arrays.toString(obj)).getConstructor().newInstance();
+        Method m = o.getClass().getDeclaredMethod(String.valueOf(this.methodList.getSelectedIndex()));
+        m.invoke(o);
 
     }
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+    }
 }
