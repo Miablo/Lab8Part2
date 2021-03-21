@@ -46,7 +46,8 @@ public class GUI extends JFrame implements ActionListener {
     // Bottom area console output area
     JTextArea console = new JTextArea();
 
-    public void createWindow(String[] args) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public void createWindow(String[] args) throws ClassNotFoundException, NoSuchMethodException,
+            IllegalAccessException, InvocationTargetException, InstantiationException {
         // Begin main window //
         this.window = (JPanel)this.getContentPane();
         this.window.setLayout(this.borderLayout1);
@@ -134,8 +135,9 @@ public class GUI extends JFrame implements ActionListener {
 
                     getClassStr(str, i, cls);
                 }
+                this.constructList.setListData(str);
 
-                this.methodList.setListData(str);
+
                 this.mtd = c.getDeclaredMethods();
                 str = new String[this.mtd.length];
 
@@ -146,7 +148,8 @@ public class GUI extends JFrame implements ActionListener {
                     getClassStr(str, i, cls);
                 }
 
-                this.constructList.setListData(str);
+                this.methodList.setListData(str);
+
             } catch (Exception ex) {
                 System.out.println(ex);
             }
