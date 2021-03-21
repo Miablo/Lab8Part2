@@ -21,24 +21,6 @@ public class Main {
         gui.createWindow(args);
         gui.setVisible(true);
 
-
-       /* try {
-            // Loop through arguments passed through CLI
-            for (String arg : args) {
-                Object c = Class.forName(arg).getConstructor().newInstance();
-                int m = c.getClass().getModifiers();
-
-                ClassComponents.getClass(c, m);
-                ClassComponents.getClassFields(c);
-                ClassComponents.getConstructor(c);
-                ClassComponents.getMethodFields(c);
-
-            }
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InstantiationException | InvocationTargetException e) {
-            e.printStackTrace();
-        }*/
-
     }
 
 

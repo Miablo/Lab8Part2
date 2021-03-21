@@ -1,15 +1,18 @@
 import javax.swing.*;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+/**
+ *
+ *
+ */
 public class GUI extends JFrame implements ActionListener {
+    Object createObj;
     JPanel window; // main window
     // scroll view areas for method,construct,and console
     JSplitPane methodPane = new JSplitPane();
@@ -68,7 +71,7 @@ public class GUI extends JFrame implements ActionListener {
         // Button and Label
         this.objectBtn.addActionListener(e -> {
             try {
-                makeObject(e);
+                newObject(e);
             } catch (ClassNotFoundException | NoSuchMethodException |
                     InvocationTargetException | InstantiationException |
                     IllegalAccessException classNotFoundException) {
@@ -89,6 +92,7 @@ public class GUI extends JFrame implements ActionListener {
         // Method Button and label
         this.mtdLabel.setRequestFocusEnabled(true);
         this.mtdLabel.setText("Methods");
+        // run clicked call run method
         this.runBtn.addActionListener(e -> {
             try {
                 runMethod(e);
@@ -98,6 +102,7 @@ public class GUI extends JFrame implements ActionListener {
             }
         });
         this.runBtn.setText("Run");
+        // add button and label to panel
         this.methodToolbar.add(this.mtdLabel, (Object)null);
         this.methodToolbar.add(this.runBtn, (Object)null);
         this.methodPane.add(this.leftPanel, "left");
@@ -115,6 +120,16 @@ public class GUI extends JFrame implements ActionListener {
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         buildClassStr(args);
     }
+
+    /**
+     *
+     * @param args from main function passed args
+     * @throws ClassNotFoundException to determine if class is found
+     * @throws NoSuchMethodException determine if method is found
+     * @throws IllegalAccessException exception if illegal call is made
+     * @throws InvocationTargetException cannot invoke method
+     * @throws InstantiationException obj issue
+     */
     private void buildClassStr(String[] args) throws ClassNotFoundException,
             NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         for (String arg : args) {
@@ -122,7 +137,7 @@ public class GUI extends JFrame implements ActionListener {
             int m = o.getClass().getModifiers();
             try {
                 testClass.setText(arg);
-                System.out.println(testClass.getText());
+               // System.out.println(testClass.getText());
                 Class c = Class.forName(testClass.getText());
                 this.cons = c.getConstructors();
                 String[] str = new String[this.cons.length];
@@ -159,6 +174,14 @@ public class GUI extends JFrame implements ActionListener {
 
     }
 
+    /**
+     * Class used to create a string to represent
+     * methods and constructors in panels
+     *
+     * @param str string from arg
+     * @param i modifier
+     * @param cls class array
+     */
     private void getClassStr(String[] str, int i, Class[] cls) {
         int j;
         for(j = 0; j < cls.length; ++j) {
@@ -174,40 +197,60 @@ public class GUI extends JFrame implements ActionListener {
 
    public Object[] makeObj(Class[] c) throws ClassNotFoundException, NoSuchMethodException,
            IllegalAccessException, InvocationTargetException, InstantiationException {
+        System.out.println("This is in the make object method");
+       Object[] object = new Object[c.length];
 
-       Object[] obj = new Object[c.length];
-
-       return obj;
+       return object;
    }
 
-    void makeObject(ActionEvent e) throws ClassNotFoundException,
+    void newObject(ActionEvent e) throws ClassNotFoundException,
             NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         int idx = this.constructList.getSelectedIndex();
         Class[] c = this.cons[idx].getParameterTypes();
         Object[] obj = this.makeObj(c);
 
         try {
-            this.obj_exe = this.cons[idx].newInstance(obj);
+            this.createObj = this.cons[idx].newInstance(obj);
         } catch (Exception ex) {
             System.out.println(e);
         }
 
     }
 
+    /**
+     *
+     * @param e action event passed --btn clk
+     * @throws ClassNotFoundException class not found
+     * @throws NoSuchMethodException method not found
+     * @throws InvocationTargetException cannot invoke method
+     * @throws InstantiationException cannot create obj
+     * @throws IllegalAccessException cannot access param
+     */
     void runMethod(ActionEvent e) throws ClassNotFoundException, NoSuchMethodException,
             InvocationTargetException, InstantiationException, IllegalAccessException {
+
+        // use obj created
+        // find method selected
+        // run method selected
+        // if method has parameters need to ask for vals
+        // created a jdialog for on click
+        // take those values in and create the method call
+        // use all input values
         int idx = this.methodList.getSelectedIndex();
         Class[] cls = this.mtd[idx].getParameterTypes();
+        System.out.println("This is in the runMethod");
         Object[] obj = this.makeObj(cls);
 
-        Object o = Class.forName(Arrays.toString(obj)).getConstructor().newInstance();
-        Method m = o.getClass().getDeclaredMethod(String.valueOf(this.methodList.getSelectedIndex()));
-        m.invoke(o);
+        Object result = this.mtd[idx].invoke(this.createObj, obj);
+        if(result != null){
+            this.console.append(result.toString() + "\n");
+        } else {
+            this.console.append("null\n");
+        }
 
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-
+    public void actionPerformed(ActionEvent e) {// not used
     }
 }
